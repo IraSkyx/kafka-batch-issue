@@ -83,29 +83,17 @@ public class Start {
     private static Future<Void> treatment(KafkaConsumerRecord<String, String> rec) {
         Promise promise = Promise.promise();
 
-        sendMessage(rec).subscribe(() -> {
-            System.out.println("OK");
-            promise.complete();
-        }, throwable -> {
-            System.out.println("KO");
-            promise.fail(throwable.getMessage());
+        System.out.println("key=" + rec.key() + ",value=" + rec.value() + ",partition=" + rec.partition() + ",offset=" + rec.offset());
+
+        WebClient.create(Start.vertx).get(9002, "localhost", "/").send(ar -> {
+            if(ar.succeeded()) {
+                promise.complete();
+            }
+            else {
+                promise.fail("Error");
+            }
         });
 
         return promise.future();
-    }
-
-    private static Completable sendMessage(KafkaConsumerRecord<String, String> rec) {
-        return Completable.create(emitter -> {
-            System.out.println("key=" + rec.key() + ",value=" + rec.value() + ",partition=" + rec.partition() + ",offset=" + rec.offset());
-
-            WebClient.create(Start.vertx).get(9002, "localhost", "/").send(ar -> {
-                if(ar.succeeded()) {
-                    emitter.onComplete();
-                }
-                else {
-                    emitter.onError(new RuntimeException());
-                }
-            });
-        });
     }
 }
