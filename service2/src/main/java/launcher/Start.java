@@ -1,6 +1,5 @@
 package launcher;
 
-import io.reactivex.Completable;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
